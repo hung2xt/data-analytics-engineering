@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Lint Python (DAGs, solutions)
+        run: |
+          pip install ruff
+          ruff check dags/ solutions/
+
+      - name: Validate docker-compose config
+        run: docker compose config --quiet
+
+  dbt-build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: fox_dwh
+          POSTGRES_PASSWORD: fox_dwh
+          POSTGRES_DB: fox_dwh
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt/fox_analytics
+      DW_HOST: localhost
+      DW_PORT: 5432
+      DW_USER: fox_dwh
+      DW_PASSWORD: fox_dwh
+      DW_DB: fox_dwh
+      DW_SCHEMA: analytical_engineer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install -r airflow/requirements.txt
+
+      - name: Load orders-domain fixture (stand-in for the real fox_dwh source table)
+        run: |
+          PGPASSWORD=fox_dwh psql -h localhost -U fox_dwh -d fox_dwh \
+            -f ci/fixtures/enriched_orders_seed.sql
+
+      - name: Generate policy-admin fixture (insurance domain source)
+        run: |
+          pip install psycopg2-binary
+          python3 scripts/generate_policy_admin_source.py
+
+      - name: dbt build (seed + run + test)
+        working-directory: dbt/fox_analytics
+        run: |
+          dbt deps || true
+          dbt build

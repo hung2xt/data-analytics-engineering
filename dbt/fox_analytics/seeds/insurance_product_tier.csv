@@ -1,0 +1,11 @@
+product_code,tier_label,is_flagship
+TRM10,ECONOMY,false
+TRM20,ECONOMY,false
+WL01,PREMIUM,true
+WL02,PREMIUM,false
+END15,PREMIUM,false
+END20,PREMIUM,true
+UL01,STANDARD,true
+UL02,STANDARD,false
+CI01,STANDARD,false
+CI02,STANDARD,false

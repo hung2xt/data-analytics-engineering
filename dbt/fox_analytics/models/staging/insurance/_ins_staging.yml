@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: stg_ins_customers
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+
+  - name: stg_ins_agents
+    columns:
+      - name: agent_id
+        tests: [unique, not_null]
+      - name: agent_status
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'INACTIVE']
+
+  - name: stg_ins_products
+    columns:
+      - name: product_code
+        tests: [unique, not_null]
+      - name: product_type
+        tests:
+          - accepted_values:
+              values: ['TERM', 'WHOLE_LIFE', 'ENDOWMENT', 'UNIT_LINKED', 'CRITICAL_ILLNESS']
+
+  - name: stg_ins_policies
+    columns:
+      - name: policy_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ins_customers')
+              field: customer_id
+      - name: agent_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ins_agents')
+              field: agent_id
+      - name: product_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ins_products')
+              field: product_code
+      - name: policy_status
+        tests:
+          - accepted_values:
+              values: ['ACTIVE', 'LAPSED', 'SURRENDERED', 'MATURED', 'DEATH_CLAIM', 'PENDING']
+
+  - name: stg_ins_premium_payments
+    columns:
+      - name: payment_id
+        tests: [unique, not_null]
+      - name: policy_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ins_policies')
+              field: policy_id
+      - name: payment_status
+        tests:
+          - accepted_values:
+              values: ['PAID', 'PARTIAL', 'MISSED', 'WAIVED']
+
+  - name: stg_ins_riders
+    columns:
+      - name: rider_id
+        tests: [unique, not_null]
+      - name: policy_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_ins_policies')
+              field: policy_id

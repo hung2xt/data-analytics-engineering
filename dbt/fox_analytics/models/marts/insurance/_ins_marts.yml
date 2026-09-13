@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: fct_policies
+    columns:
+      - name: policy_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - relationships:
+              to: ref('dim_policyholders')
+              field: customer_id
+      - name: agent_id
+        tests:
+          - relationships:
+              to: ref('dim_agents')
+              field: agent_id
+      - name: product_code
+        tests:
+          - relationships:
+              to: ref('dim_insurance_products')
+              field: product_code
+      - name: annual_premium
+        tests: [not_null]
+
+  - name: fct_premium_payments
+    columns:
+      - name: payment_id
+        tests: [unique, not_null]
+      - name: policy_id
+        tests:
+          - relationships:
+              to: ref('fct_policies')
+              field: policy_id
+
+  - name: fct_policy_riders
+    columns:
+      - name: rider_id
+        tests: [unique, not_null]
+      - name: policy_id
+        tests:
+          - relationships:
+              to: ref('fct_policies')
+              field: policy_id
+
+  - name: dim_policyholders
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+
+  - name: dim_agents
+    columns:
+      - name: agent_id
+        tests: [unique, not_null]
+
+  - name: dim_insurance_products
+    columns:
+      - name: product_code
+        tests: [unique, not_null]

@@ -1,0 +1,9 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+# Keep this to correctness rules (pyflakes) + basic style (pycodestyle).
+# Airflow DAG files intentionally use naive datetimes for start_date, and
+# import-sort/datetime-timezone strictness isn't worth enforcing here.
+select = ["E", "F"]

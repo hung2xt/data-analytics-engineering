@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: policy_admin
+    description: >
+      Synthetic Policy Administration System (PAS) tables — stands in for a
+      real source system that would feed the warehouse via CDC/ETL. Loaded
+      by scripts/generate_policy_admin_source.py, not by dbt. dbt only reads
+      from here via source(); all transformation output goes to
+      analytical_engineer.
+    schema: policy_admin
+    tables:
+      - name: t_customer
+        columns:
+          - name: customer_id
+            tests: [unique, not_null]
+      - name: t_agent
+        columns:
+          - name: agent_id
+            tests: [unique, not_null]
+      - name: t_product
+        columns:
+          - name: product_code
+            tests: [unique, not_null]
+      - name: t_policy
+        loaded_at_field: updated_at
+        freshness:
+          warn_after: {count: 30, period: day}
+          error_after: {count: 90, period: day}
+        columns:
+          - name: policy_id
+            tests: [unique, not_null]
+      - name: t_premium_payment
+        columns:
+          - name: payment_id
+            tests: [unique, not_null]
+      - name: t_rider
+        columns:
+          - name: rider_id
+            tests: [unique, not_null]
