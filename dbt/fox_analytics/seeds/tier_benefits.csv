@@ -1,0 +1,5 @@
+tier,discount_pct,free_shipping
+Bronze,0,false
+Silver,5,false
+Gold,10,true
+Platinum,15,true

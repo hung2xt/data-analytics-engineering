@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: One row per customer, latest known attributes.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: tier
+        tests:
+          - accepted_values:
+              values: ['Bronze', 'Silver', 'Gold', 'Platinum']
+
+  - name: stg_orders
+    description: One row per order line.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+
+  - name: stg_products
+    description: Distinct product catalog, derived from order lines.
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null

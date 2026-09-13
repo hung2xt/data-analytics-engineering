@@ -1,0 +1,10 @@
+.env
+logs/
+plugins/
+dbt/fox_analytics/target/
+dbt/fox_analytics/dbt_packages/
+dbt/fox_analytics/logs/
+dbt/fox_analytics/.user.yml
+__pycache__/
+*.pyc
+.DS_Store
